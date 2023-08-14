@@ -1,0 +1,38 @@
+{
+  "_comment" : "Create a AWS AMI ith AMZ Linux 2018 with Java and Tomcat",
+  "variables": {
+    "aws_access_key": "",
+    "aws_secret_key": ""
+  },
+    
+  "builders": [{
+    "type": "amazon-ebs",
+    "access_key": "{{user `aws_access_key`}}",
+    "secret_key": "{{user `aws_secret_key`}}",
+    "region": "us-east-2",
+    "source_ami": "ami-02a89066c48741345",
+    "instance_type": "t2.micro",
+    "ssh_username": "ec2-user",
+    "ami_name": "DevOps-{{isotime | clean_resource_name}}",
+    "vpc_id": "vpc-01ca974ae6727ed02",
+    "subnet_id": "subnet-030d358700f95312c"
+  }],
+
+  "provisioners": [{
+    "type": "shell",
+    "inline": [
+      "sleep 30",
+      "sudo apt update -y",
+      "sudo apt install nginx -y",
+      "sudo apt install git -y",
+      "sudo git clone https://github.com/mavrick202/webhooktesting.git",
+      "sudo rm -rf /var/www/html/index.nginx-debian.html",
+      "sudo cp webhooktesting/index.html /var/www/html/index.nginx-debian.html",
+      "sudo cp webhooktesting/style.css /var/www/html/style.css",
+      "sudo cp webhooktesting/scorekeeper.js /var/www/html/scorekeeper.js",
+      "sudo service nginx start",
+      "sudo systemctl enable nginx",
+      "curl https://get.docker.com | bash"
+      ]
+  }]
+}
